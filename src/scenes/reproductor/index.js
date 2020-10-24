@@ -2,10 +2,13 @@
 import _interopRequireDefault from '@babel/runtime/helpers/interopRequireDefault';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Button, Image } from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/dist/AntDesign';
-import IconOther from 'react-native-vector-icons/dist/EvilIcons';
+import HeaderReproductor from './../../components/atom/HeaderReproducto';
+import FooterReproductor from './../../components/atom/FooterReproductor'
+
 
 const ReproductorScene = () => {
 
@@ -14,6 +17,9 @@ const ReproductorScene = () => {
     return (
         <LinearGradient style={style.containerView} colors={['#34cfeb', '#b8cfd4']} >
             <SafeAreaView>
+
+                <HeaderReproductor />
+
                 <View style={style.imageContainer}>
                     <Image style={{ width: '80%', borderRadius: 50 }} source={require("../../../icons/Fonts/Logo_Music_Verse.jpg")} />
                 </View>
@@ -30,74 +36,72 @@ const ReproductorScene = () => {
                 <View style={style.buttonsContainer}>
 
                     <View style={style.buttonPlayPause}>
-                        <Icon
-                            name="verticleleft"
-                            size={45}
-                            color="white"
-                            style={{ textAlign: 'center' }}
-                            onPress={() => { setEstadoPlay(false); }}
-                        />
+                        <TouchableOpacity>
+                            <Icon
+                                name="verticleleft"
+                                size={45}
+                                color="white"
+                                style={{ textAlign: 'center' }}
+                                onPress={() => { setEstadoPlay(false); }}
+                            />
+                        </TouchableOpacity>
                     </View>
 
                     <View style={style.buttonPlayPause}>
-                        <Icon
-                            name="stepbackward"
-                            size={45}
-                            color="white"
-                            style={{ textAlign: 'center' }}
-                            onPress={() => { setEstadoPlay(false); }}
-                        />
-
+                        <TouchableOpacity>
+                            <Icon
+                                name="stepbackward"
+                                size={45}
+                                color="white"
+                                style={{ textAlign: 'center' }}
+                                onPress={() => { setEstadoPlay(false); }}
+                            />
+                        </TouchableOpacity>
                     </View>
                     <View style={style.buttonPlayPause}>
                         {
-                            estadoPlay == false ? <Icon
+                            estadoPlay == false ? <TouchableOpacity><Icon
                                 name="caretright"
                                 size={45}
                                 color="white"
                                 style={{ textAlign: 'center' }}
                                 onPress={() => { setEstadoPlay(true); }}
-                            /> : <Icon
-                                    name="pause"
-                                    size={45}
-                                    color="white"
-                                    style={{ textAlign: 'center' }}
-                                    onPress={() => { setEstadoPlay(false); }}
-                                />
+                            /></TouchableOpacity> : <TouchableOpacity><Icon
+                                name="pause"
+                                size={45}
+                                color="white"
+                                style={{ textAlign: 'center' }}
+                                onPress={() => { setEstadoPlay(false); }}
+                            />
+                                </TouchableOpacity>
                         }
                     </View>
                     <View style={style.buttonPlayPause}>
-                        <Icon
-                            name="stepforward"
-                            size={45}
-                            color="white"
-                            style={{ textAlign: 'center' }}
-                            onPress={() => { setEstadoPlay(false); }}
-                        />
+                        <TouchableOpacity>
+                            <Icon
+                                name="stepforward"
+                                size={45}
+                                color="white"
+                                style={{ textAlign: 'center' }}
+                                onPress={() => { setEstadoPlay(false); }}
+                            />
+                        </TouchableOpacity>
                     </View>
 
                     <View style={style.buttonPlayPause}>
-                        <Icon
-                            name="retweet"
-                            size={45}
-                            color="white"
-                            style={{ textAlign: 'center' }}
-                            onPress={() => { setEstadoPlay(false); }}
-                        />
+                        <TouchableOpacity>
+                            <Icon
+                                name="retweet"
+                                size={45}
+                                color="white"
+                                style={{ textAlign: 'center' }}
+                                onPress={() => { setEstadoPlay(false); }}
+                            />
+                        </TouchableOpacity>
                     </View>
-
                 </View>
-                <View style={style.buttonsContainer}>
-                    <Icon
-                        name="profile"
-                        size={45}
-                        color="white"
-                        style={{ textAlign: 'center' }}
-                    />
-                    <Text style={style.textTitle}>Letra</Text>
-                </View>
+                <FooterReproductor />
             </SafeAreaView>
-
         </LinearGradient>
     );
 }
