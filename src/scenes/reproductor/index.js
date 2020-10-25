@@ -9,15 +9,49 @@ import Icon from 'react-native-vector-icons/dist/AntDesign';
 import HeaderReproductor from './../../components/atom/HeaderReproducto';
 import FooterReproductor from './../../components/atom/FooterReproductor'
 
+import { getTracks, MusicFile } from 'react-native-music-files';
+import { Platform } from 'react-native';
+import { PERMISSIONS, request } from 'react-native-permissions';
+
+request(
+    Platform.select({
+        android: PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE,
+    }),
+);
 
 const ReproductorScene = () => {
 
+    //Estado Play
     const [estadoPlay, setEstadoPlay] = useState(false);
+
+    //Se maneja la lista de canciones en el dispositivo.
+    const [trackList, setTrackList] = useState([]);
+
+    //Llama la lista de audios en el dispositivo
+    const _getSongs = () => {
+        getTracks({
+        }).then(tracks => {
+
+            setTrackList([]);
+
+            tracks.forEach(element => {
+                console.log(element.title);
+
+            });
+
+            setTrackList(tracks);
+
+        }).catch(error => {
+            alert('Hubo un error');
+            console.log(error);
+        })
+    }
+
 
     return (
         <LinearGradient style={style.containerView} colors={['#34cfeb', '#b8cfd4']} >
             <SafeAreaView>
-
+                <Button title='TEST' onPress={() => { _getSongs() }} />
                 <HeaderReproductor />
 
                 <View style={style.imageContainer}>
