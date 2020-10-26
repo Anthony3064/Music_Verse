@@ -1,6 +1,6 @@
 
 import _interopRequireDefault from '@babel/runtime/helpers/interopRequireDefault';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, Image } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
@@ -12,12 +12,27 @@ import FooterReproductor from './../../components/atom/FooterReproductor'
 import { getTracks, MusicFile } from 'react-native-music-files';
 import { Platform } from 'react-native';
 import { PERMISSIONS, request } from 'react-native-permissions';
+import TrackPlayer from 'react-native-track-player';
 
 request(
     Platform.select({
         android: PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE,
     }),
 );
+
+const trackPlayerInit = async () => {
+    await TrackPlayer.setupPlayer();
+    await TrackPlayer.add({
+        id: idParam,
+        url: urlParam,
+        type: typeParam,
+        title: titleParam,
+        album: albumParam,
+        artist: artistParam,
+        artwork: artworkParam,
+    });
+    return true;
+};
 
 const ReproductorScene = () => {
 
@@ -27,8 +42,12 @@ const ReproductorScene = () => {
     //Se maneja la lista de canciones en el dispositivo.
     const [trackList, setTrackList] = useState([]);
 
-    //Llama la lista de audios en el dispositivo
-    const _getSongs = () => {
+    //El track
+    const [track, setTrack] = useState(null);
+
+
+    useEffect(() => {
+
         getTracks({
         }).then(tracks => {
 
@@ -36,35 +55,75 @@ const ReproductorScene = () => {
 
             tracks.forEach(element => {
                 console.log(element.title);
-
             });
 
             setTrackList(tracks);
+            setTrack(tracks[0]);
+
 
         }).catch(error => {
             alert('Hubo un error');
             console.log(error);
-        })
-    }
+        });
 
+
+
+        /*const startPlayer = async () => {
+            let isInit = await trackPlayerInit();
+            setIsTrackPlayerInit(isInit);
+        }
+        startPlayer();*/
+
+    }, []);
+
+    const [isInit, setIsInit] = useState(false);
+
+    const alPresionar = () => {
+
+        if (!isInit) {
+            TrackPlayer.setupPlayer();
+            TrackPlayer.add({
+                id: track.id,
+                url: track.path,
+                type: 'default',
+                title: track.title,
+                album: track.album,
+                artist: track.artist,
+                artwork: track.cover,
+            });
+            setIsInit(true);
+        };
+
+        if (estadoPlay) {
+            TrackPlayer.pause();
+            setEstadoPlay(false);
+        } else {
+            TrackPlayer.play();
+            setEstadoPlay(true);
+        }
+
+
+    }
 
     return (
         <LinearGradient style={style.containerView} colors={['#34cfeb', '#b8cfd4']} >
             <SafeAreaView>
-                <Button title='TEST' onPress={() => { _getSongs() }} />
+                {/*<Button title='TEST' onPress={() => { _getSongs() }} />*/}
                 <HeaderReproductor />
 
                 <View style={style.imageContainer}>
-                    <Image style={{ width: '80%', borderRadius: 50 }} source={require("../../../icons/Fonts/Logo_Music_Verse.jpg")} />
+
+                    {track == null ? <Image style={{ width: '80%', borderRadius: 50 }} source={require("../../../icons/Fonts/Logo_Music_Verse.jpg")} /> : <Image style={{ width: '80%', borderRadius: 50 }} source={require("../../../icons/Fonts/Logo_Music_Verse.jpg")} />}
+
                 </View>
                 <View style={style.textContainer}>
-                    <Text style={style.textTitle}>Nombre de la canción</Text>
+                    {track == null ? <Text style={style.textTitle}>titulo</Text> : <Text style={style.textTitle}>{track.title}</Text>}
                 </View>
 
                 <View style={style.buttonsContainer}>
                     <Text style={style.textStyle}>   0:00</Text>
                     <Text>   ----------------------------------------------------------------------------------  </Text>
-                    <Text style={style.textStyle}>3:15</Text>
+                    {track == null ? <Text style={style.textStyle}>3:13</Text> : <Text style={style.textStyle}>{track.duration}</Text>}
                 </View>
 
                 <View style={style.buttonsContainer}>
@@ -76,7 +135,7 @@ const ReproductorScene = () => {
                                 size={45}
                                 color="white"
                                 style={{ textAlign: 'center' }}
-                                onPress={() => { setEstadoPlay(false); }}
+                                onPress={() => { alPresionar() }}
                             />
                         </TouchableOpacity>
                     </View>
@@ -99,13 +158,13 @@ const ReproductorScene = () => {
                                 size={45}
                                 color="white"
                                 style={{ textAlign: 'center' }}
-                                onPress={() => { setEstadoPlay(true); }}
+                                onPress={() => { alPresionar() }}
                             /></TouchableOpacity> : <TouchableOpacity><Icon
                                 name="pause"
                                 size={45}
                                 color="white"
                                 style={{ textAlign: 'center' }}
-                                onPress={() => { setEstadoPlay(false); }}
+                                onPress={() => { alPresionar() }}
                             />
                                 </TouchableOpacity>
                         }
@@ -148,7 +207,7 @@ const style = StyleSheet.create({
     },
     textTitle: {
         color: 'white',
-        fontSize: 30
+        fontSize: 20
     },
     buttonPlayPause: {
         width: 50,
@@ -176,6 +235,7 @@ const style = StyleSheet.create({
         textAlign: 'center',
         justifyContent: 'center',
         alignItems: 'center',
+        margin: '5%',
     }
 });
 
