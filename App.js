@@ -18,7 +18,7 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator >
-        <Stack.Screen name="Reproductor" component={ReproductorScene} options={{ title: 'Reproductor' }} />
+        <Stack.Screen name="Reproductor" component={ReproductorScene} />
       </Stack.Navigator>
     </NavigationContainer>
   );
