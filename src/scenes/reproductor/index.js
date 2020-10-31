@@ -13,11 +13,13 @@ import { Platform } from 'react-native';
 import { PERMISSIONS, request } from 'react-native-permissions';
 import TrackPlayer from 'react-native-track-player';
 
+import IconEntypo from 'react-native-vector-icons/dist/Entypo';
+
 //import the hook provided by react-native-track-player to manage the progress
 import { useTrackPlayerProgress } from 'react-native-track-player/lib/hooks';
 //import statement for slider
 import Slider from '@react-native-community/slider';
-
+//Pide permisos del dispositivo
 request(
     Platform.select({
         android: PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE,
@@ -26,6 +28,7 @@ request(
 
 const ReproductorScene = () => {
 
+    //Index de la canción
     const [trackIndex, setTrackIndex] = useState(0);
 
     //Estado Play
@@ -37,6 +40,7 @@ const ReproductorScene = () => {
     //El track
     const [track, setTrack] = useState(null);
 
+    //Para parse los datos del Music File a los que permite el TrackPlayer
     var song = {
         "id": String,
         "url": String,
@@ -44,13 +48,17 @@ const ReproductorScene = () => {
         "title": String,
         "album": String,
         "artist": String,
-        "artwork": String
+        "artwork": String,
+        "duration": Number,
     }
 
+    //Almaceno las canciones de manera temporal.
     var data;
 
+    //Para controlar que solo se carguen las canciones una vez
     const [cargado, setCargado] = useState(false);
 
+    //Cargo las canciones e inicializo el track player con la lista de canciones
     useEffect(() => {
 
         if (!cargado) {
@@ -68,31 +76,40 @@ const ReproductorScene = () => {
                     song.album = element.album;
                     song.artist = element.artist;
                     song.artwork = element.cover;
+                    song.duration = element.duration;
                     data.push(song);
                 });
 
+                if (data.length) {
 
-                setTrackList(data);
-                setTrack(data[trackIndex]);
-                setCargado(true);
+                    TrackPlayer.setupPlayer().then(() => {
+                        TrackPlayer.reset();
+                        TrackPlayer.add(data);
+                        /*data.forEach(i => {
+                            console.log(i.id);
+                        });*/
+                        console.log("Se inicia");
+                        setTrackList(data);
+                        setTrack(data[trackIndex]);
+                    });
 
-                TrackPlayer.setupPlayer().then(async () => {
-                    await TrackPlayer.reset();
-                    await TrackPlayer.add(data);
-                    console.log("Se inicia");
-                });
+                }
 
             }).catch(error => {
                 console.log(error);
             });
+
+            setIsInit(true);
+            setCargado(true);
         }
 
-    }, []);
+    });
 
     const stop = () => {
         TrackPlayer.stop();
     };
 
+    //Cambio el estado del botón de play al darle click y pauso o reproduzco la canción.
     const alPresionar = () => {
 
         if (estadoPlay) {
@@ -132,60 +149,74 @@ const ReproductorScene = () => {
         setIsSeeking(false);
     };
 
-
+    //Pasa a la siguiente canción en el arrglo
     const siguiente = () => {
+        //Almaceno el valor del index
+        let count = trackIndex + 1;
 
-        if (trackIndex >= trackList.length) {
+        //Valido si el index es el máximo en el arreglo y si es así pone la primera canción.
+        if (count == trackList.length) {
             setTrackIndex(0);
-            setTrack(trackList[trackIndex]);
-            TrackPlayer.skip(track.id);
-            TrackPlayer.play();
         } else {
-            setTrackIndex(trackIndex + 1);
-            setTrack(trackList[trackIndex]);
-            TrackPlayer.skip(track.id);
-            TrackPlayer.play();
+            setTrackIndex(trackIndex => trackIndex + 1);
         }
-
-        if (TrackPlayer.STATE_PLAYING) {
-            setEstadoPlay(false);
-        }
-        if (TrackPlayer.STATE_PAUSED) {
-            setEstadoPlay(true);
-        }
-
 
     }
 
-
-
-
+    //Pasa a la canción anterior del arreglo
     const anterior = () => {
-        if (trackIndex < 0) {
+
+        //Almaceno el index para validar
+        let count = trackIndex - 1;
+
+        //Si el index es menor a 0 se pone la última canción del arreglo
+        if (count < 0) {
             setTrackIndex(trackList.length - 1);
-            setTrack(trackList[trackIndex]);
-            TrackPlayer.skip(track.id);
-            TrackPlayer.play();
         } else {
-            setTrackIndex(trackIndex - 1);
+            setTrackIndex(trackIndex => trackIndex - 1);
+        }
+    }
+
+    //Para validar si el TrackPlayer ya fue inicializado
+    const [isInit, setIsInit] = useState(false);
+
+    //Cargo el front de la canción y además se controlan los cambios.
+    useEffect(() => {
+        console.log("Se cambia a " + trackIndex);
+
+        if (trackList != null && trackList.length > 0 && track != null) {
             console.log(trackIndex);
             setTrack(trackList[trackIndex]);
+            console.log(track.id);
             TrackPlayer.skip(track.id);
             TrackPlayer.play();
-        }
-        if (TrackPlayer.STATE_PLAYING) {
-            setEstadoPlay(false);
-        }
-        if (TrackPlayer.STATE_PAUSED) {
-            setEstadoPlay(true);
+
+            if (TrackPlayer.STATE_PLAYING) {
+                setEstadoPlay(true);
+            } else if (TrackPlayer.STATE_PAUSED) {
+                setEstadoPlay(false);
+            }
         }
 
+    }, [trackIndex, track, TrackPlayer]);
+
+    function millisToMinutesAndSeconds(millis) {
+        var minutes = Math.floor(millis / 60000);
+        var seconds = ((millis % 60000) / 1000).toFixed(0);
+        return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+    }
+
+    function secondsOf(millis) {
+        var seconds = Math.floor(millis / 60000);
+        return seconds;
     }
 
     return (
-        <LinearGradient style={style.containerView} colors={['#34cfeb', '#b8cfd4']} >
+        <LinearGradient style={style.containerView} colors={['#34cfeb', '#b8cfd0']} >
             <SafeAreaView>
+                {/*<Button title='TEST' onPress={() => { _getSongs() }} />*/}
                 <HeaderReproductor />
+
                 <View style={style.imageContainer}>
 
                     {track == null ? <Image style={{ width: '80%', borderRadius: 50 }} source={require("../../../icons/Fonts/Logo_Music_Verse.jpg")} /> : <Image style={{ width: '80%', borderRadius: 50 }} source={require("../../../icons/Fonts/Logo_Music_Verse.jpg")} />}
@@ -195,28 +226,28 @@ const ReproductorScene = () => {
                     {track == null ? <Text style={style.textTitle}>titulo</Text> : <Text style={style.textTitle}>{track.title}</Text>}
                 </View>
 
-                <View style={style.buttonsContainer}>
-                    <Text>0:00</Text>
+                <View style={style.sliderContainer}>
+                    <Text style={{ fontSize: 16, color: 'white' }}>{/**millisToMinutesAndSeconds(((sliderValue/27.40))*10000000)*/(sliderValue).toFixed(2).toString().replace(".", ":")}</Text>
                     <Slider
-                        style={{ width: '60%', height: 40 }}
+                        style={{ width: '75%', height: 40 }}
                         minimumValue={0}
                         maximumValue={1}
                         value={sliderValue}
-                        minimumTrackTintColor="#111000"
-                        maximumTrackTintColor="#000000"
+                        minimumTrackTintColor="green"
+                        maximumTrackTintColor="#ffffff"
                         onSlidingStart={slidingStarted}
                         onSlidingComplete={slidingCompleted}
                     />
-                    <Text>{duration}</Text>
+                    <Text style={{ fontSize: 16, color: 'white' }}>{millisToMinutesAndSeconds(duration * 1000)}</Text>
                 </View>
 
                 <View style={style.buttonsContainer}>
 
                     <View style={style.buttonPlayPause}>
                         <TouchableOpacity>
-                            <Icon
-                                name="verticleleft"
-                                size={45}
+                            <IconEntypo
+                                name="shuffle"
+                                size={35}
                                 color="white"
                                 style={{ textAlign: 'center' }}
                                 onPress={() => { stop() }}
@@ -228,7 +259,7 @@ const ReproductorScene = () => {
                         <TouchableOpacity>
                             <Icon
                                 name="stepbackward"
-                                size={45}
+                                size={35}
                                 color="white"
                                 style={{ textAlign: 'center' }}
                                 onPress={() => { anterior() }}
@@ -239,16 +270,16 @@ const ReproductorScene = () => {
                         {
                             estadoPlay == false ? <TouchableOpacity><Icon
                                 name="caretright"
-                                size={45}
+                                size={35}
                                 color="white"
                                 style={{ textAlign: 'center' }}
-                                onPress={() => { alPresionar() }}
+                                onPress={() => { alPresionar(); setEstadoPlay(true) }}
                             /></TouchableOpacity> : <TouchableOpacity><Icon
                                 name="pause"
-                                size={45}
+                                size={35}
                                 color="white"
                                 style={{ textAlign: 'center' }}
-                                onPress={() => { alPresionar() }}
+                                onPress={() => { alPresionar(); setEstadoPlay(false) }}
                             />
                                 </TouchableOpacity>
                         }
@@ -257,7 +288,7 @@ const ReproductorScene = () => {
                         <TouchableOpacity>
                             <Icon
                                 name="stepforward"
-                                size={45}
+                                size={35}
                                 color="white"
                                 style={{ textAlign: 'center' }}
                                 onPress={() => { siguiente() }}
@@ -269,7 +300,7 @@ const ReproductorScene = () => {
                         <TouchableOpacity>
                             <Icon
                                 name="retweet"
-                                size={45}
+                                size={35}
                                 color="white"
                                 style={{ textAlign: 'center' }}
                                 onPress={() => { setEstadoPlay(false); }}
@@ -302,6 +333,11 @@ const style = StyleSheet.create({
         textAlign: "center"
     },
     buttonsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    sliderContainer: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
