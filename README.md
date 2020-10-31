@@ -17,3 +17,23 @@ Vector Icons:
     
  Music Files:
     -https://www.npmjs.com/package/react-native-music-files
+    
+    Otros comandos:
+
+npx react-native start
+
+npx react-native run-android
+
+npm install --save react-native-vector-icons
+
+npx react-native init (nombre)
+
+npm i react-native-reanimated
+
+npm i expo-ui-kit
+
+npm install @react-navigation/native
+
+npm install @react-navigation/drawer
+
+npm i -g react-native-cli
