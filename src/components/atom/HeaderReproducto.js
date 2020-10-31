@@ -10,14 +10,6 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 const HeaderReproductor = () => {
 
   return (
-    <View style={styles.containerHeader}>
-      <View style={styles.buttonStyle}>
-        <TouchableOpacity >
-          <Icon name="arrowleft" size={45}
-            color="white"
-            style={{ textAlign: 'center' }} onPress={() => { console.log("Music Librery") }} />
-        </TouchableOpacity>
-      </View>
 
       <View style={styles.containerHeader}>
         <View style={styles.buttonStyle}>
@@ -37,21 +29,21 @@ const HeaderReproductor = () => {
         </View>
       </View>
 
-    </View>
   );
 };
 
 const styles = StyleSheet.create({
   containerHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
+    marginLeft: 260,
   },
   buttonStyle: {
-    width: 50,
+    width: 35,
     margin: 10,
     display: 'flex',
-    alignContent: 'center',
+    alignContent: 'flex-start',
     justifyContent: 'space-between',
     textAlign: "center",
   },
