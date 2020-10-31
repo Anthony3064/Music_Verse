@@ -34,7 +34,7 @@ const Screens = ({ navigation, style }) => {
             headerTitle: null,
             headerLeft: () => (
               <Button transparent onPress={() => navigation.openDrawer()}>
-                <EntypoIcon name="menu" size={18} color="white" style={{ paddingHorizontal: 10 }} />
+                <EntypoIcon name="menu" size={50} color="white" style={{ paddingHorizontal: 10 }} />
               </Button>
             ),
           }}>
