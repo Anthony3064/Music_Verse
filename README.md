@@ -34,7 +34,5 @@ npx react-native start
 
 npx react-native run-android
 
-npm install --save react-native-vector-icons
-
 npx react-native init (nombre)
 
