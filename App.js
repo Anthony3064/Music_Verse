@@ -7,19 +7,18 @@
  */
 
 import React from 'react';
+import Drawer from './Drawer';
 
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
 import ReproductorScene from './src/scenes/reproductor/index';
-
-const Stack = createStackNavigator();
 
 const App = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator >
-        <Stack.Screen name="Reproductor" component={ReproductorScene} options={{ title: 'Reproductor' }} />
-      </Stack.Navigator>
+      < Drawer />
+      {/* <Stack.Navigator >
+        <Stack.Screen name="Reproductor" component={ReproductorScene} />
+      </Stack.Navigator> */}
     </NavigationContainer>
   );
 };
