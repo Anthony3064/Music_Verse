@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 
 import _interopRequireDefault from '@babel/runtime/helpers/interopRequireDefault';
 import React, { useState, useEffect } from 'react';
@@ -136,6 +137,9 @@ const ReproductorScene = () => {
         if (!isSeeking && position && duration) {
             setSliderValue(position / duration);
         }
+
+        console.log(TrackPlayer.STATE_READY);
+
     }, [position, duration]);
 
     //this function is called when the user starts to slide the seekbar
@@ -151,29 +155,63 @@ const ReproductorScene = () => {
 
     //Pasa a la siguiente canción en el arrglo
     const siguiente = () => {
-        //Almaceno el valor del index
-        let count = trackIndex + 1;
 
-        //Valido si el index es el máximo en el arreglo y si es así pone la primera canción.
-        if (count == trackList.length) {
-            setTrackIndex(0);
+        if (shufflePressed) {
+
+            let random = randomNumber();
+
+            console.log(random + " el random");
+
+            while (random === trackIndex) {
+                random = randomNumber();
+            }
+
+            setTrackIndex(random);
+
         } else {
-            setTrackIndex(trackIndex => trackIndex + 1);
+
+            //Almaceno el valor del index
+            let count = trackIndex + 1;
+
+            //Valido si el index es el máximo en el arreglo y si es así pone la primera canción.
+            if (count == trackList.length) {
+                setTrackIndex(0);
+            } else {
+                setTrackIndex(trackIndex => trackIndex + 1);
+            }
+
         }
+
+
 
     }
 
     //Pasa a la canción anterior del arreglo
     const anterior = () => {
 
-        //Almaceno el index para validar
-        let count = trackIndex - 1;
+        if (shufflePressed) {
 
-        //Si el index es menor a 0 se pone la última canción del arreglo
-        if (count < 0) {
-            setTrackIndex(trackList.length - 1);
+            let random = randomNumber();
+
+            console.log(random + " el random");
+
+            while (random === trackIndex) {
+                random = randomNumber();
+            }
+
+            setTrackIndex(random);
+
         } else {
-            setTrackIndex(trackIndex => trackIndex - 1);
+
+            //Almaceno el index para validar
+            let count = trackIndex - 1;
+
+            //Si el index es menor a 0 se pone la última canción del arreglo
+            if (count < 0) {
+                setTrackIndex(trackList.length - 1);
+            } else {
+                setTrackIndex(trackIndex => trackIndex - 1);
+            }
         }
     }
 
@@ -182,12 +220,13 @@ const ReproductorScene = () => {
 
     //Cargo el front de la canción y además se controlan los cambios.
     useEffect(() => {
-        console.log("Se cambia a " + trackIndex);
+
+        //console.log("Se cambia a " + trackIndex);
 
         if (trackList != null && trackList.length > 0 && track != null) {
-            console.log(trackIndex);
+            //console.log(trackIndex);
             setTrack(trackList[trackIndex]);
-            console.log(track.id);
+            //console.log(track.id);
             TrackPlayer.skip(track.id);
             TrackPlayer.play();
 
@@ -206,9 +245,12 @@ const ReproductorScene = () => {
         return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
     }
 
-    function secondsOf(millis) {
-        var seconds = Math.floor(millis / 60000);
-        return seconds;
+    //Valida el shuffle si esta presionado o no
+    const [shufflePressed, setShufflePressed] = useState(false);
+
+
+    function randomNumber() {
+        return Math.floor(Math.random() * trackList.length);
     }
 
     return (
@@ -227,7 +269,7 @@ const ReproductorScene = () => {
                 </View>
 
                 <View style={style.sliderContainer}>
-                    <Text style={{ fontSize: 16, color: 'white' }}>{/**millisToMinutesAndSeconds(((sliderValue/27.40))*10000000)*/(sliderValue).toFixed(2).toString().replace(".", ":")}</Text>
+                    <Text style={{ fontSize: 16, color: 'white' }}>{millisToMinutesAndSeconds((position) * 1000)}</Text>
                     <Slider
                         style={{ width: '75%', height: 40 }}
                         minimumValue={0}
@@ -243,17 +285,28 @@ const ReproductorScene = () => {
 
                 <View style={style.buttonsContainer}>
 
-                    <View style={style.buttonPlayPause}>
+                    {shufflePressed ? <View style={style.buttonPlayPause}>
                         <TouchableOpacity>
                             <IconEntypo
                                 name="shuffle"
                                 size={35}
-                                color="white"
-                                style={{ textAlign: 'center' }}
-                                onPress={() => { stop() }}
+                                color="black"
+                                style={{ textAlign: 'center', backgroundColor: "white", borderRadius: 100, }}
+                                onPress={() => { setShufflePressed(false) }}
                             />
                         </TouchableOpacity>
-                    </View>
+                    </View> : <View style={style.buttonPlayPause}>
+                            <TouchableOpacity>
+                                <IconEntypo
+                                    name="shuffle"
+                                    size={35}
+                                    color="white"
+                                    style={{ textAlign: 'center' }}
+                                    onPress={() => { setShufflePressed(true) }}
+                                />
+                            </TouchableOpacity>
+                        </View>}
+
 
                     <View style={style.buttonPlayPause}>
                         <TouchableOpacity>
@@ -303,7 +356,7 @@ const ReproductorScene = () => {
                                 size={35}
                                 color="white"
                                 style={{ textAlign: 'center' }}
-                                onPress={() => { setEstadoPlay(false); }}
+                                onPress={() => { randomNumber() }}
                             />
                         </TouchableOpacity>
                     </View>
@@ -330,7 +383,7 @@ const style = StyleSheet.create({
         display: 'flex',
         alignContent: 'center',
         justifyContent: 'space-between',
-        textAlign: "center"
+        textAlign: "center",
     },
     buttonsContainer: {
         flexDirection: 'row',
