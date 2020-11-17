@@ -19,10 +19,10 @@ const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 
 //Importar los screens.
-import Music_Library from './screens/Music_Library';
-import Playlists from './screens/Playlists';
-import Favorites from './screens/Favorites';
-import Reproductor from './src/scenes/reproductor/index';
+import Music_Library from '../../screens/Music_Library';
+import Playlists from '../../screens/Playlists';
+import Favorites from '../../screens/Favorites';
+import Reproductor from '../../scenes/reproductor/index';
 
 //Para poder devolverse o navegar
 const Screens = ({ navigation, style }) => {
@@ -54,7 +54,7 @@ const DrawerContent = props => {
         <Block>
           <Block flex={0.2} margin={20} bottom>
             <Image
-            source={require('./icons/MusicVerse.png')}
+            source={require('../../../icons/MusicVerse.png')}
             resizeMode="center"
             style={styles.avatar}
             />
