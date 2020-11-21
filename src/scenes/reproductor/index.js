@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 
 import _interopRequireDefault from '@babel/runtime/helpers/interopRequireDefault';
 import React, { useState, useEffect } from 'react';
@@ -24,6 +23,9 @@ import Slider from '@react-native-community/slider';
 request(
     Platform.select({
         android: PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE,
+    }),
+    Platform.select({
+        android: PERMISSIONS.ANDROID.CAMERA,
     }),
 );
 
@@ -86,9 +88,22 @@ const ReproductorScene = () => {
                     TrackPlayer.setupPlayer().then(() => {
                         TrackPlayer.reset();
                         TrackPlayer.add(data);
-                        /*data.forEach(i => {
-                            console.log(i.id);
-                        });*/
+
+                        TrackPlayer.updateOptions({
+                            stopWithApp: true,
+                            capabilities: [
+                                TrackPlayer.CAPABILITY_PLAY,
+                                TrackPlayer.CAPABILITY_PAUSE,
+                                TrackPlayer.CAPABILITY_SKIP_TO_NEXT,
+                                TrackPlayer.CAPABILITY_SKIP_TO_PREVIOUS,
+                                TrackPlayer.CAPABILITY_STOP
+                            ],
+                            compactCapabilities: [
+                                TrackPlayer.CAPABILITY_PLAY,
+                                TrackPlayer.CAPABILITY_PAUSE
+                            ]
+                        });
+
                         console.log("Se inicia");
                         setTrackList(data);
                         setTrack(data[trackIndex]);
@@ -137,8 +152,6 @@ const ReproductorScene = () => {
         if (!isSeeking && position && duration) {
             setSliderValue(position / duration);
         }
-
-        console.log(TrackPlayer.STATE_READY);
 
     }, [position, duration]);
 
@@ -224,10 +237,12 @@ const ReproductorScene = () => {
         //console.log("Se cambia a " + trackIndex);
 
         if (trackList != null && trackList.length > 0 && track != null) {
+
             //console.log(trackIndex);
             setTrack(trackList[trackIndex]);
-            //console.log(track.id);
+
             TrackPlayer.skip(track.id);
+
             TrackPlayer.play();
 
             if (TrackPlayer.STATE_PLAYING) {
@@ -240,9 +255,9 @@ const ReproductorScene = () => {
     }, [trackIndex, track, TrackPlayer]);
 
     function millisToMinutesAndSeconds(millis) {
-        var minutes = Math.floor(millis / 60000);
-        var seconds = ((millis % 60000) / 1000).toFixed(0);
-        return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+        var minutes = Math.floor(millis / 59000);
+        var seconds = ((millis % 59000) / 1000).toFixed(0);
+        return minutes + ":" + (seconds < 9 ? '0' : '') + seconds;
     }
 
     //Valida el shuffle si esta presionado o no
@@ -253,6 +268,54 @@ const ReproductorScene = () => {
         return Math.floor(Math.random() * trackList.length);
     }
 
+    useEffect(() => {
+
+        if (millisToMinutesAndSeconds((position) * 1000) === "0:00" && track != null) {
+
+            if (replay) {
+
+                TrackPlayer.getCurrentTrack().then(currentTrack => {
+
+                    if (currentTrack != track.id) {
+                        var indexReplay = indexOfTrackList(track.id);
+                        console.log("Está en replay se reproduce el index " + indexReplay);
+                        setTrackIndex(indexReplay);
+                        TrackPlayer.skip(track.id);
+                    }
+                });
+
+            } else {
+
+                TrackPlayer.getCurrentTrack().then(currentTrack => {
+
+                    if (currentTrack != track.id) {
+                        var index = indexOfTrackList(currentTrack);
+                        setTrackIndex(index);
+                    }
+                });
+
+            }
+        }
+
+    })
+
+    function indexOfTrackList(id) {
+
+        let value;
+        let encontrado = false;
+
+        trackList.forEach(trackElement => {
+            if (trackElement.id == id && !encontrado) {
+                value = trackList.indexOf(trackElement);
+                encontrado = true;
+            }
+        });
+
+        return value
+    }
+
+    const [replay, setReplay] = useState(false);
+
     return (
         <LinearGradient style={style.containerView} colors={['#34cfeb', '#b8cfd0']} >
             <SafeAreaView>
@@ -260,12 +323,10 @@ const ReproductorScene = () => {
                 <HeaderReproductor />
 
                 <View style={style.imageContainer}>
-
                     {track == null ? <Image style={{ width: '80%', borderRadius: 50 }} source={require("../../../icons/Fonts/Logo_Music_Verse.jpg")} /> : <Image style={{ width: '80%', borderRadius: 50 }} source={require("../../../icons/Fonts/Logo_Music_Verse.jpg")} />}
-
                 </View>
                 <View style={style.textContainer}>
-                    {track == null ? <Text style={style.textTitle}>titulo</Text> : <Text style={style.textTitle}>{track.title}</Text>}
+                    {track == null ? <Text style={style.textTitle}>Titulo</Text> : <Text style={style.textTitle}>{track.title.length >= 35 ? track.title.substring(0, 35) + "..." : track.title}</Text>}
                 </View>
 
                 <View style={style.sliderContainer}>
@@ -349,17 +410,28 @@ const ReproductorScene = () => {
                         </TouchableOpacity>
                     </View>
 
-                    <View style={style.buttonPlayPause}>
+                    {replay ? <View style={style.buttonPlayPause}>
                         <TouchableOpacity>
                             <Icon
                                 name="retweet"
                                 size={35}
-                                color="white"
-                                style={{ textAlign: 'center' }}
-                                onPress={() => { randomNumber() }}
+                                color="black"
+                                style={{ textAlign: 'center', backgroundColor: "white", borderRadius: 100, }}
+                                onPress={() => { setReplay(false) }}
                             />
                         </TouchableOpacity>
-                    </View>
+                    </View> : <View style={style.buttonPlayPause}>
+                            <TouchableOpacity>
+                                <Icon
+                                    name="retweet"
+                                    size={35}
+                                    color="white"
+                                    style={{ textAlign: 'center' }}
+                                    onPress={() => { setReplay(true) }}
+                                />
+                            </TouchableOpacity>
+                        </View>}
+
                 </View>
                 <FooterReproductor />
             </SafeAreaView>
@@ -396,7 +468,7 @@ const style = StyleSheet.create({
         alignItems: 'center',
     },
     imageContainer: {
-        margin: 20,
+        margin: '2%',
         textAlign: 'center',
         justifyContent: 'center',
         alignItems: 'center',
@@ -408,7 +480,7 @@ const style = StyleSheet.create({
         textAlign: 'center',
         justifyContent: 'center',
         alignItems: 'center',
-        margin: '5%',
+        margin: '2%',
     }
 });
 
