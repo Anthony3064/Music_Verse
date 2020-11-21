@@ -24,6 +24,9 @@ request(
     Platform.select({
         android: PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE,
     }),
+    Platform.select({
+        android: PERMISSIONS.ANDROID.CAMERA,
+    }),
 );
 
 const ReproductorScene = () => {
@@ -85,9 +88,22 @@ const ReproductorScene = () => {
                     TrackPlayer.setupPlayer().then(() => {
                         TrackPlayer.reset();
                         TrackPlayer.add(data);
-                        /*data.forEach(i => {
-                            console.log(i.id);
-                        });*/
+
+                        TrackPlayer.updateOptions({
+                            stopWithApp: true,
+                            capabilities: [
+                                TrackPlayer.CAPABILITY_PLAY,
+                                TrackPlayer.CAPABILITY_PAUSE,
+                                TrackPlayer.CAPABILITY_SKIP_TO_NEXT,
+                                TrackPlayer.CAPABILITY_SKIP_TO_PREVIOUS,
+                                TrackPlayer.CAPABILITY_STOP
+                            ],
+                            compactCapabilities: [
+                                TrackPlayer.CAPABILITY_PLAY,
+                                TrackPlayer.CAPABILITY_PAUSE
+                            ]
+                        });
+
                         console.log("Se inicia");
                         setTrackList(data);
                         setTrack(data[trackIndex]);
@@ -136,6 +152,7 @@ const ReproductorScene = () => {
         if (!isSeeking && position && duration) {
             setSliderValue(position / duration);
         }
+
     }, [position, duration]);
 
     //this function is called when the user starts to slide the seekbar
@@ -151,29 +168,63 @@ const ReproductorScene = () => {
 
     //Pasa a la siguiente canción en el arrglo
     const siguiente = () => {
-        //Almaceno el valor del index
-        let count = trackIndex + 1;
 
-        //Valido si el index es el máximo en el arreglo y si es así pone la primera canción.
-        if (count == trackList.length) {
-            setTrackIndex(0);
+        if (shufflePressed) {
+
+            let random = randomNumber();
+
+            console.log(random + " el random");
+
+            while (random === trackIndex) {
+                random = randomNumber();
+            }
+
+            setTrackIndex(random);
+
         } else {
-            setTrackIndex(trackIndex => trackIndex + 1);
+
+            //Almaceno el valor del index
+            let count = trackIndex + 1;
+
+            //Valido si el index es el máximo en el arreglo y si es así pone la primera canción.
+            if (count == trackList.length) {
+                setTrackIndex(0);
+            } else {
+                setTrackIndex(trackIndex => trackIndex + 1);
+            }
+
         }
+
+
 
     }
 
     //Pasa a la canción anterior del arreglo
     const anterior = () => {
 
-        //Almaceno el index para validar
-        let count = trackIndex - 1;
+        if (shufflePressed) {
 
-        //Si el index es menor a 0 se pone la última canción del arreglo
-        if (count < 0) {
-            setTrackIndex(trackList.length - 1);
+            let random = randomNumber();
+
+            console.log(random + " el random");
+
+            while (random === trackIndex) {
+                random = randomNumber();
+            }
+
+            setTrackIndex(random);
+
         } else {
-            setTrackIndex(trackIndex => trackIndex - 1);
+
+            //Almaceno el index para validar
+            let count = trackIndex - 1;
+
+            //Si el index es menor a 0 se pone la última canción del arreglo
+            if (count < 0) {
+                setTrackIndex(trackList.length - 1);
+            } else {
+                setTrackIndex(trackIndex => trackIndex - 1);
+            }
         }
     }
 
@@ -182,13 +233,16 @@ const ReproductorScene = () => {
 
     //Cargo el front de la canción y además se controlan los cambios.
     useEffect(() => {
-        console.log("Se cambia a " + trackIndex);
+
+        //console.log("Se cambia a " + trackIndex);
 
         if (trackList != null && trackList.length > 0 && track != null) {
-            console.log(trackIndex);
+
+            //console.log(trackIndex);
             setTrack(trackList[trackIndex]);
-            console.log(track.id);
+            
             TrackPlayer.skip(track.id);
+
             TrackPlayer.play();
 
             if (TrackPlayer.STATE_PLAYING) {
@@ -206,10 +260,61 @@ const ReproductorScene = () => {
         return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
     }
 
-    function secondsOf(millis) {
-        var seconds = Math.floor(millis / 60000);
-        return seconds;
+    //Valida el shuffle si esta presionado o no
+    const [shufflePressed, setShufflePressed] = useState(false);
+
+
+    function randomNumber() {
+        return Math.floor(Math.random() * trackList.length);
     }
+
+    useEffect(() => {
+
+        if (millisToMinutesAndSeconds((position) * 1000) === "0:00" && track != null) {
+
+            if (replay) {
+
+                TrackPlayer.getCurrentTrack().then(currentTrack => {
+
+                    if (currentTrack != track.id) {
+                        var indexReplay = indexOfTrackList(track.id);
+                        console.log("Está en replay se reproduce el index " + indexReplay);
+                        setTrackIndex(indexReplay);
+                        TrackPlayer.skip(track.id);
+                    }
+                });
+
+            } else {
+
+                TrackPlayer.getCurrentTrack().then(currentTrack => {
+
+                    if (currentTrack != track.id) {
+                        var index = indexOfTrackList(currentTrack);
+                        setTrackIndex(index);
+                    }
+                });
+
+            }
+        }
+
+    })
+
+    function indexOfTrackList(id) {
+
+        let value;
+        let encontrado = false;
+
+        trackList.forEach(trackElement => {
+            if (trackElement.id == id && !encontrado) {
+                value = trackList.indexOf(trackElement);
+                encontrado = true;
+            }
+        });
+
+        return value
+    }
+
+    const [replay, setReplay] = useState(false);
 
     return (
         <LinearGradient style={style.containerView} colors={['#34cfeb', '#b8cfd0']} >
@@ -218,16 +323,14 @@ const ReproductorScene = () => {
                 <HeaderReproductor />
 
                 <View style={style.imageContainer}>
-
                     {track == null ? <Image style={{ width: '80%', borderRadius: 50 }} source={require("../../../icons/Fonts/Logo_Music_Verse.jpg")} /> : <Image style={{ width: '80%', borderRadius: 50 }} source={require("../../../icons/Fonts/Logo_Music_Verse.jpg")} />}
-
                 </View>
                 <View style={style.textContainer}>
                     {track == null ? <Text style={style.textTitle}>titulo</Text> : <Text style={style.textTitle}>{track.title}</Text>}
                 </View>
 
                 <View style={style.sliderContainer}>
-                    <Text style={{ fontSize: 16, color: 'white' }}>{/**millisToMinutesAndSeconds(((sliderValue/27.40))*10000000)*/(sliderValue).toFixed(2).toString().replace(".", ":")}</Text>
+                    <Text style={{ fontSize: 16, color: 'white' }}>{millisToMinutesAndSeconds((position) * 1000)}</Text>
                     <Slider
                         style={{ width: '75%', height: 40 }}
                         minimumValue={0}
@@ -243,17 +346,28 @@ const ReproductorScene = () => {
 
                 <View style={style.buttonsContainer}>
 
-                    <View style={style.buttonPlayPause}>
+                    {shufflePressed ? <View style={style.buttonPlayPause}>
                         <TouchableOpacity>
                             <IconEntypo
                                 name="shuffle"
                                 size={35}
-                                color="white"
-                                style={{ textAlign: 'center' }}
-                                onPress={() => { stop() }}
+                                color="black"
+                                style={{ textAlign: 'center', backgroundColor: "white", borderRadius: 100, }}
+                                onPress={() => { setShufflePressed(false) }}
                             />
                         </TouchableOpacity>
-                    </View>
+                    </View> : <View style={style.buttonPlayPause}>
+                            <TouchableOpacity>
+                                <IconEntypo
+                                    name="shuffle"
+                                    size={35}
+                                    color="white"
+                                    style={{ textAlign: 'center' }}
+                                    onPress={() => { setShufflePressed(true) }}
+                                />
+                            </TouchableOpacity>
+                        </View>}
+
 
                     <View style={style.buttonPlayPause}>
                         <TouchableOpacity>
@@ -296,17 +410,28 @@ const ReproductorScene = () => {
                         </TouchableOpacity>
                     </View>
 
-                    <View style={style.buttonPlayPause}>
+                    {replay ? <View style={style.buttonPlayPause}>
                         <TouchableOpacity>
                             <Icon
                                 name="retweet"
                                 size={35}
-                                color="white"
-                                style={{ textAlign: 'center' }}
-                                onPress={() => { setEstadoPlay(false); }}
+                                color="black"
+                                style={{ textAlign: 'center', backgroundColor: "white", borderRadius: 100, }}
+                                onPress={() => { setReplay(false) }}
                             />
                         </TouchableOpacity>
-                    </View>
+                    </View> : <View style={style.buttonPlayPause}>
+                            <TouchableOpacity>
+                                <Icon
+                                    name="retweet"
+                                    size={35}
+                                    color="white"
+                                    style={{ textAlign: 'center' }}
+                                    onPress={() => { setReplay(true) }}
+                                />
+                            </TouchableOpacity>
+                        </View>}
+
                 </View>
                 <FooterReproductor />
             </SafeAreaView>
@@ -330,7 +455,7 @@ const style = StyleSheet.create({
         display: 'flex',
         alignContent: 'center',
         justifyContent: 'space-between',
-        textAlign: "center"
+        textAlign: "center",
     },
     buttonsContainer: {
         flexDirection: 'row',
@@ -343,7 +468,7 @@ const style = StyleSheet.create({
         alignItems: 'center',
     },
     imageContainer: {
-        margin: 20,
+        margin: '2%',
         textAlign: 'center',
         justifyContent: 'center',
         alignItems: 'center',
@@ -355,7 +480,7 @@ const style = StyleSheet.create({
         textAlign: 'center',
         justifyContent: 'center',
         alignItems: 'center',
-        margin: '5%',
+        margin: '2%',
     }
 });
 
