@@ -31,8 +31,6 @@ const Music_Library = props => {
 
   const [trackList, setTrackList] = useState(null);
 
-  const [track, setTrack] = useState(null);
-
   const [trackIndex, setTrackIndex] = useState(0);
 
   useEffect(() => {
@@ -113,7 +111,7 @@ const Music_Library = props => {
           data={trackList}
           renderItem={({ item }) => (
             <View style={styles.item}>
-              <TouchableOpacity style={{ display: "flex", flexDirection: "row" }} onPress={() => navigation.navigate('Reproductor', trackList)}>
+              <TouchableOpacity style={{ display: "flex", flexDirection: "row" }} onPress={() => navigation.navigate('Reproductor', {"trackListParam": trackList, "idParam": item.id})}>
                 <Image style={{ width: 50, height: 50, borderRadius: 50 }} source={require("../../icons/MusicVerse.png")} />
                 <View>
                   <TextTicker style={{ marginTop: 2.8, fontSize: 16 }} shouldAnimateTreshold={0} bounce={false} duration={3000} repeatSpacer={100} marqueeDelay={1000}>   {item.title} {"\n"} </TextTicker>

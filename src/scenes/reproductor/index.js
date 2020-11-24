@@ -26,19 +26,26 @@ request(
     }),
 );
 
-const ReproductorScene = ({ route }) => {
+const ReproductorScene = ({ route}) => {
 
     //Index de la canción
     const [trackIndex, setTrackIndex] = useState();
+
+    const [id, setId] = useState(route.params.idParam);
 
     //Estado Play
     const [estadoPlay, setEstadoPlay] = useState(false);
 
     //Se maneja la lista de canciones en el dispositivo.
-    const [trackList, setTrackList] = useState(route.params);
+    const [trackList, setTrackList] = useState(route.params.trackListParam);
 
     //El track
     const [track, setTrack] = useState(null);
+
+    useEffect(() => {
+        console.log(id);
+        //console.log(trackList);
+    })
 
     /*
     //Para parse los datos del Music File a los que permite el TrackPlayer

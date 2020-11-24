@@ -10,14 +10,14 @@ import React from 'react';
 import Drawer from './src/components/atom/Drawer';
 
 import { NavigationContainer } from '@react-navigation/native';
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
+LogBox.ignoreAllLogs();//Ignore all log notifications
 
 const App = () => {
   return (
     <NavigationContainer>
-      < Drawer />
-      {/* <Stack.Navigator >
-        <Stack.Screen name="Reproductor" component={ReproductorScene} />
-      </Stack.Navigator> */}
+      <Drawer />
     </NavigationContainer>
   );
 };

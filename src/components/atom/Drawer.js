@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import React from 'react';
 import { Image, StyleSheet } from 'react-native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, TransitionPresets  } from '@react-navigation/stack';
 import {
   DrawerItem,
   createDrawerNavigator,
@@ -26,26 +26,27 @@ import Reproductor from '../../scenes/reproductor/index';
 
 //Para poder devolverse o navegar
 const Screens = ({ navigation, style }) => {
-    return (
-      <Animated.View style={StyleSheet.flatten([styles.stack, style])}>
-        <Stack.Navigator
-          screenOptions={{
-            headerTransparent: true,
-            headerTitle: null,
-            headerLeft: () => (
-              <Button transparent onPress={() => navigation.openDrawer()}>
-                <EntypoIcon name="menu" size={50} color="white" style={{ paddingHorizontal: 10 }} />
-              </Button>
-            ),
-          }}>
-          <Stack.Screen name="Home">{props => <Music_Library {...props} />}</Stack.Screen>
-          <Stack.Screen name="Playlists">{props => <Playlists {...props} />}</Stack.Screen>
-          <Stack.Screen name="Favorites">{props => <Favorites {...props} />}</Stack.Screen>
-          <Stack.Screen name="Reproductor">{props => <Reproductor {...props} />}</Stack.Screen>
-        </Stack.Navigator>
-      </Animated.View>
-    );
-  };
+  return (
+    <Animated.View style={StyleSheet.flatten([styles.stack, style])}>
+      <Stack.Navigator
+        screenOptions={{
+          headerTransparent: true,
+          headerTitle: null,
+          ...TransitionPresets.FadeFromBottomAndroid,
+          headerLeft: () => (
+            <Button transparent onPress={() => navigation.openDrawer()}>
+              <EntypoIcon name="menu" size={50} color="white" style={{ paddingHorizontal: 10 }} />
+            </Button>
+          ),
+        }}>
+        <Stack.Screen name="Home">{props => <Music_Library {...props} />}</Stack.Screen>
+        <Stack.Screen name="Playlists">{props => <Playlists {...props} />}</Stack.Screen>
+        <Stack.Screen name="Favorites">{props => <Favorites {...props} />}</Stack.Screen>
+        <Stack.Screen name="Reproductor">{props => <Reproductor {...props} />}</Stack.Screen>
+      </Stack.Navigator>
+    </Animated.View>
+  );
+};
 
 //custom Drawer
 const DrawerContent = props => {
