@@ -1,1 +1,0 @@
-export {default as HeaderPlay} from './HeaderPlay';

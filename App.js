@@ -7,10 +7,9 @@
  */
 
 import React from 'react';
-import Drawer from './Drawer';
+import Drawer from './src/components/atom/Drawer';
 
 import { NavigationContainer } from '@react-navigation/native';
-import ReproductorScene from './src/scenes/reproductor/index';
 
 const App = () => {
   return (

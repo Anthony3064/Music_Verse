@@ -240,7 +240,6 @@ const ReproductorScene = () => {
 
             //console.log(trackIndex);
             setTrack(trackList[trackIndex]);
-            
             TrackPlayer.skip(track.id);
 
             TrackPlayer.play();
@@ -255,8 +254,8 @@ const ReproductorScene = () => {
     }, [trackIndex, track, TrackPlayer]);
 
     function millisToMinutesAndSeconds(millis) {
-        var minutes = Math.floor(millis / 60000);
-        var seconds = ((millis % 60000) / 1000).toFixed(0);
+        var minutes = Math.floor(millis / 59000);
+        var seconds = ((millis % 59000) / 1000).toFixed(0);
         return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
     }
 
@@ -326,7 +325,7 @@ const ReproductorScene = () => {
                     {track == null ? <Image style={{ width: '80%', borderRadius: 50 }} source={require("../../../icons/Fonts/Logo_Music_Verse.jpg")} /> : <Image style={{ width: '80%', borderRadius: 50 }} source={require("../../../icons/Fonts/Logo_Music_Verse.jpg")} />}
                 </View>
                 <View style={style.textContainer}>
-                    {track == null ? <Text style={style.textTitle}>titulo</Text> : <Text style={style.textTitle}>{track.title}</Text>}
+                    {track == null ? <Text style={style.textTitle}>Titulo</Text> : <Text style={style.textTitle}>{track.title.length >= 35 ? track.title.substring(0, 35) + "..." : track.title}</Text>}
                 </View>
 
                 <View style={style.sliderContainer}>
