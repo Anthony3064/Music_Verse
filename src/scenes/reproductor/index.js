@@ -270,14 +270,13 @@ const ReproductorScene = () => {
     useEffect(() => {
 
         if (millisToMinutesAndSeconds((position) * 1000) === "0:00" && track != null) {
-
+            
             if (replay) {
-
+                
                 TrackPlayer.getCurrentTrack().then(currentTrack => {
 
                     if (currentTrack != track.id) {
                         var indexReplay = indexOfTrackList(track.id);
-                        console.log("Está en replay se reproduce el index " + indexReplay);
                         setTrackIndex(indexReplay);
                         TrackPlayer.skip(track.id);
                     }
