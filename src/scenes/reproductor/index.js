@@ -24,25 +24,23 @@ request(
     Platform.select({
         android: PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE,
     }),
-    Platform.select({
-        android: PERMISSIONS.ANDROID.CAMERA,
-    }),
 );
 
-const ReproductorScene = () => {
+const ReproductorScene = ({ route }) => {
 
     //Index de la canción
-    const [trackIndex, setTrackIndex] = useState(0);
+    const [trackIndex, setTrackIndex] = useState();
 
     //Estado Play
     const [estadoPlay, setEstadoPlay] = useState(false);
 
     //Se maneja la lista de canciones en el dispositivo.
-    const [trackList, setTrackList] = useState([]);
+    const [trackList, setTrackList] = useState(route.params);
 
     //El track
     const [track, setTrack] = useState(null);
 
+    /*
     //Para parse los datos del Music File a los que permite el TrackPlayer
     var song = {
         "id": String,
@@ -107,6 +105,7 @@ const ReproductorScene = () => {
                         console.log("Se inicia");
                         setTrackList(data);
                         setTrack(data[trackIndex]);
+                        console.log(listTest);
                     });
 
                 }
@@ -123,7 +122,7 @@ const ReproductorScene = () => {
 
     const stop = () => {
         TrackPlayer.stop();
-    };
+    };*/
 
     //Cambio el estado del botón de play al darle click y pauso o reproduzco la canción.
     const alPresionar = () => {
@@ -270,9 +269,9 @@ const ReproductorScene = () => {
     useEffect(() => {
 
         if (millisToMinutesAndSeconds((position) * 1000) === "0:00" && track != null) {
-            
+
             if (replay) {
-                
+
                 TrackPlayer.getCurrentTrack().then(currentTrack => {
 
                     if (currentTrack != track.id) {
