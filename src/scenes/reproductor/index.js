@@ -8,7 +8,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/dist/AntDesign';
 import HeaderReproductor from './../../components/atom/HeaderReproducto';
 import FooterReproductor from './../../components/atom/FooterReproductor'
-import { getTracks, MusicFile } from 'react-native-music-files';
 import { Platform } from 'react-native';
 import { PERMISSIONS, request } from 'react-native-permissions';
 import TrackPlayer from 'react-native-track-player';
@@ -26,12 +25,10 @@ request(
     }),
 );
 
-const ReproductorScene = ({ route}) => {
+const ReproductorScene = ({ route }) => {
 
     //Index de la canción
-    const [trackIndex, setTrackIndex] = useState();
-
-    const [id, setId] = useState(route.params.idParam);
+    const [trackIndex, setTrackIndex] = useState(indexOfTrackList(route.params.idParam));
 
     //Estado Play
     const [estadoPlay, setEstadoPlay] = useState(false);
@@ -40,96 +37,74 @@ const ReproductorScene = ({ route}) => {
     const [trackList, setTrackList] = useState(route.params.trackListParam);
 
     //El track
-    const [track, setTrack] = useState(null);
+    const [track, setTrack] = useState(route.params.trackListParam[indexOfTrackList(route.params.idParam)]);
 
-    useEffect(() => {
-        console.log(id);
-        //console.log(trackList);
-    })
-
-    /*
-    //Para parse los datos del Music File a los que permite el TrackPlayer
-    var song = {
-        "id": String,
-        "url": String,
-        "type": String,
-        "title": String,
-        "album": String,
-        "artist": String,
-        "artwork": String,
-        "duration": Number,
-    }
-
-    //Almaceno las canciones de manera temporal.
-    var data;
-
-    //Para controlar que solo se carguen las canciones una vez
     const [cargado, setCargado] = useState(false);
 
     //Cargo las canciones e inicializo el track player con la lista de canciones
     useEffect(() => {
 
-        if (!cargado) {
-            getTracks({
-            }).then(tracks => {
+        TrackPlayer.setupPlayer().then(async () => {
+            console.log("Track Player Iniciado");
+            await TrackPlayer.destroy();
+            await TrackPlayer.reset();
+            await TrackPlayer.add(route.params.trackListParam);
+            TrackPlayer.skip(route.params.idParam);
 
-                data = [];
+            TrackPlayer.play();
 
-                tracks.forEach(element => {
-                    song = {};
-                    song.id = element.id;
-                    song.url = element.path;
-                    song.type = "default";
-                    song.title = element.title;
-                    song.album = element.album;
-                    song.artist = element.artist;
-                    song.artwork = element.cover;
-                    song.duration = element.duration;
-                    data.push(song);
-                });
+            TrackPlayer.getCurrentTrack().then(idTrackCurrent => {
+                setTrackIndex(indexOfTrackList(idTrackCurrent));
+            })
 
-                if (data.length) {
+            if (TrackPlayer.STATE_PLAYING) {
+                TrackPlayer.play();
+                setEstadoPlay(true);
+            } else {
+                TrackPlayer.pause();
+                setEstadoPlay(false);
+            }
 
-                    TrackPlayer.setupPlayer().then(() => {
-                        TrackPlayer.reset();
-                        TrackPlayer.add(data);
-
-                        TrackPlayer.updateOptions({
-                            stopWithApp: true,
-                            capabilities: [
-                                TrackPlayer.CAPABILITY_PLAY,
-                                TrackPlayer.CAPABILITY_PAUSE,
-                                TrackPlayer.CAPABILITY_SKIP_TO_NEXT,
-                                TrackPlayer.CAPABILITY_SKIP_TO_PREVIOUS,
-                                TrackPlayer.CAPABILITY_STOP
-                            ],
-                            compactCapabilities: [
-                                TrackPlayer.CAPABILITY_PLAY,
-                                TrackPlayer.CAPABILITY_PAUSE
-                            ]
-                        });
-
-                        console.log("Se inicia");
-                        setTrackList(data);
-                        setTrack(data[trackIndex]);
-                        console.log(listTest);
-                    });
-
-                }
-
-            }).catch(error => {
-                console.log(error);
+            TrackPlayer.updateOptions({
+                stopWithApp: true,
+                capabilities: [
+                    TrackPlayer.CAPABILITY_PLAY,
+                    TrackPlayer.CAPABILITY_PAUSE,
+                    TrackPlayer.CAPABILITY_SKIP_TO_NEXT,
+                    TrackPlayer.CAPABILITY_SKIP_TO_PREVIOUS,
+                    TrackPlayer.CAPABILITY_STOP
+                ],
+                compactCapabilities: [
+                    TrackPlayer.CAPABILITY_PLAY,
+                    TrackPlayer.CAPABILITY_PAUSE
+                ]
             });
-
-            setIsInit(true);
             setCargado(true);
+        }).catch(error => {
+            console.log("Algo pasa ==> " + error);
+        });
+    }, []);
+
+    useEffect(() => {
+
+        if (cargado) {
+            if (track !== null && trackIndex !== undefined && route.params.trackListParam != null) {
+                console.log("Index ==> " + trackIndex);
+
+                setTrack(trackList[trackIndex]);
+                TrackPlayer.skip(trackList[trackIndex].id);
+                TrackPlayer.play();
+
+                if (TrackPlayer.STATE_PLAYING) {
+                    setEstadoPlay(true);
+                } else if (TrackPlayer.STATE_PAUSED) {
+                    setEstadoPlay(false);
+                }
+            }
+
         }
 
-    });
-
-    const stop = () => {
-        TrackPlayer.stop();
-    };*/
+    }, [trackIndex, track])
 
     //Cambio el estado del botón de play al darle click y pauso o reproduzco la canción.
     const alPresionar = () => {
@@ -196,7 +171,8 @@ const ReproductorScene = ({ route}) => {
             if (count == trackList.length) {
                 setTrackIndex(0);
             } else {
-                setTrackIndex(trackIndex => trackIndex + 1);
+                setTrackIndex(Number(trackIndex) + 1);
+                console.log(trackIndex);
             }
 
         }
@@ -231,33 +207,9 @@ const ReproductorScene = ({ route}) => {
             } else {
                 setTrackIndex(trackIndex => trackIndex - 1);
             }
+
         }
     }
-
-    //Para validar si el TrackPlayer ya fue inicializado
-    const [isInit, setIsInit] = useState(false);
-
-    //Cargo el front de la canción y además se controlan los cambios.
-    useEffect(() => {
-
-        //console.log("Se cambia a " + trackIndex);
-
-        if (trackList != null && trackList.length > 0 && track != null) {
-
-            //console.log(trackIndex);
-            setTrack(trackList[trackIndex]);
-            TrackPlayer.skip(track.id);
-
-            TrackPlayer.play();
-
-            if (TrackPlayer.STATE_PLAYING) {
-                setEstadoPlay(true);
-            } else if (TrackPlayer.STATE_PAUSED) {
-                setEstadoPlay(false);
-            }
-        }
-
-    }, [trackIndex, track, TrackPlayer]);
 
     function millisToMinutesAndSeconds(millis) {
         var minutes = Math.floor(millis / 59000);
@@ -308,14 +260,14 @@ const ReproductorScene = ({ route}) => {
         let value;
         let encontrado = false;
 
-        trackList.forEach(trackElement => {
+        route.params.trackListParam.forEach(trackElement => {
             if (trackElement.id == id && !encontrado) {
-                value = trackList.indexOf(trackElement);
+                value = route.params.trackListParam.indexOf(trackElement);
                 encontrado = true;
             }
         });
 
-        return value
+        return String(value);
     }
 
     const [replay, setReplay] = useState(false);

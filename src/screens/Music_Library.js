@@ -5,14 +5,13 @@ import { Text } from 'expo-ui-kit';
 import LinearGradient from 'react-native-linear-gradient';
 import { StyleSheet, FlatList, View, Image } from 'react-native';
 import { getTracks, MusicFile } from 'react-native-music-files';
-import TrackPlayer from 'react-native-track-player';
 import React, { useState, useEffect } from 'react';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import TextTicker from 'react-native-text-ticker'
 
 const Music_Library = props => {
 
-  const {navigation} = props;
+  const { navigation } = props;
 
   var song = {
     "id": String,
@@ -55,33 +54,8 @@ const Music_Library = props => {
         });
 
         if (music.length > 0) {
-
-          TrackPlayer.setupPlayer().then(() => {
-            TrackPlayer.reset();
-            TrackPlayer.add(music);
-            TrackPlayer.updateOptions({
-              stopWithApp: true,
-              capabilities: [
-                TrackPlayer.CAPABILITY_PLAY,
-                TrackPlayer.CAPABILITY_PAUSE,
-                TrackPlayer.CAPABILITY_SKIP_TO_NEXT,
-                TrackPlayer.CAPABILITY_SKIP_TO_PREVIOUS,
-                TrackPlayer.CAPABILITY_STOP
-              ],
-              compactCapabilities: [
-                TrackPlayer.CAPABILITY_PLAY,
-                TrackPlayer.CAPABILITY_PAUSE
-              ]
-            });
-            /*data.forEach(i => {
-                console.log(i.id);
-            });*/
-            console.log("Se inicia");
-            setTrackList(music);
-            //setTrack(music[trackIndex]);
-            //{trackList == null ? <Text>No hay nada</Text>: <Text>{trackList.map(T => (T.title + "\n"))}</Text>} para imprimir las canciones en pantalla
-          });
-
+          console.log("Se inicia");
+          setTrackList(music);
         }
 
       }).catch(error => {
@@ -92,13 +66,6 @@ const Music_Library = props => {
     }
 
   });
-
-  /*useEffect( () => {
-    if (trackList != null){
-      console.log(trackList);
-    }
-    //Hacer que una variable cambia de texto a textTicker para poder activar la animacion por cancion seleccionada.
-  });*/
 
   return (
     <LinearGradient
@@ -111,7 +78,7 @@ const Music_Library = props => {
           data={trackList}
           renderItem={({ item }) => (
             <View style={styles.item}>
-              <TouchableOpacity style={{ display: "flex", flexDirection: "row" }} onPress={() => navigation.navigate('Reproductor', {"trackListParam": trackList, "idParam": item.id})}>
+              <TouchableOpacity style={{ display: "flex", flexDirection: "row" }} onPress={() => navigation.navigate('Reproductor', { "trackListParam": trackList, "idParam": item.id, "cargadoParam": false })}>
                 <Image style={{ width: 50, height: 50, borderRadius: 50 }} source={require("../../icons/MusicVerse.png")} />
                 <View>
                   <TextTicker style={{ marginTop: 2.8, fontSize: 16 }} shouldAnimateTreshold={0} bounce={false} duration={3000} repeatSpacer={100} marqueeDelay={1000}>   {item.title} {"\n"} </TextTicker>
