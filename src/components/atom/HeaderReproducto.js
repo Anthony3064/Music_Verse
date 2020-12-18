@@ -14,19 +14,19 @@ const HeaderReproductor = () => {
       <View style={styles.containerHeader}>
         <View style={styles.buttonStyle}>
           <TouchableOpacity>
-            <Octicons name="settings" size={45}
-              color="white"
-              style={{ textAlign: 'center' }} onPress={() => { console.log("Settings") }} />
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.buttonStyle}>
-          <TouchableOpacity>
-            <IconFeather name="more-vertical" size={45}
+            <IconFeather name="heart" size={40}
               color="white"
               style={{ textAlign: 'center' }} onPress={() => { console.log("Sub Meno") }} />
           </TouchableOpacity>
         </View>
+        {/*<View style={styles.buttonStyle}>
+          <TouchableOpacity>
+            <Octicons name="settings" size={45}
+              color="white"
+              style={{ textAlign: 'center' }} onPress={() => { console.log("Settings") }} />
+          </TouchableOpacity>
+  </View>*/}
+
       </View>
 
   );
@@ -37,10 +37,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 260,
+    marginLeft: 340,
   },
   buttonStyle: {
-    width: 35,
+    width: 40,
     margin: 10,
     display: 'flex',
     alignContent: 'flex-start',

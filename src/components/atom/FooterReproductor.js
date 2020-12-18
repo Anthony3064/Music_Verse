@@ -4,7 +4,7 @@ import { TouchableOpacity, TouchableHighlight } from 'react-native-gesture-handl
 import Icon from 'react-native-vector-icons/dist/AntDesign';
 
 
-const FooterReproductor = () => {
+const FooterReproductor = (track) => {
     const [modalVisible, setModalVisible] = useState(false);
     return (
         <View style={styles.containerFooter}>
@@ -20,7 +20,7 @@ const FooterReproductor = () => {
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
                         <View style={styles.buttonsContainer}>
-                            <Text style={styles.modalText}>Letra</Text>
+                            <Text style={styles.modalText}>Información</Text>
                             <TouchableOpacity>
                                 <Icon
                                     name="close"
@@ -33,11 +33,16 @@ const FooterReproductor = () => {
 
 
                         </View>
+                        <Text style={styles.modalText}>Titulo de la cación:</Text>
+                        {track != null ? <Text style={styles.modalText}>{track.title}</Text> : <Text style={styles.modalText}>---</Text>}
                         <Text>{"\n"}</Text>
+                        <Text style={styles.modalText}>Album:</Text>
+                        {track != null ? <Text style={styles.modalText}>{track.album}</Text> : <Text style={styles.modalText}>---</Text>}
                         <Text>{"\n"}</Text>
+                        <Text style={styles.modalText}>Artista:</Text>
+                        {track != null ? <Text style={styles.modalText}>{track.artist}</Text> : <Text style={styles.modalText}>---</Text>}
                         <Text>{"\n"}</Text>
-                        <Text>{"\n"}</Text>
-                        <Text>{"\n"}</Text>
+
                         <View>
                             <TouchableOpacity style={styles.buttonsContainer}>
                                 <Icon
@@ -60,12 +65,12 @@ const FooterReproductor = () => {
                 <TouchableOpacity style={styles.buttonsContainer}>
                     <Icon
                         name="profile"
-                        size={45}
+                        size={40}
                         color="white"
                         style={{ textAlign: 'center' }}
                         onPress={() => { setModalVisible(true) }}
                     >
-                        <Text style={styles.textTitle}>Letra</Text>
+                        <Text style={styles.textTitle}>Info</Text>
                     </Icon>
                 </TouchableOpacity>
             </View>
