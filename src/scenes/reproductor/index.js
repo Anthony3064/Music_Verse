@@ -272,12 +272,6 @@ const ReproductorScene = ({ route }) => {
 
     const [replay, setReplay] = useState(false);
 
-    const findTrack = () => {
-
-        let t = trackList.find(x => x.id === '37');
-        console.log(t);
-    }
-
     return (
         <LinearGradient style={style.containerView} colors={['#34cfeb', '#b8cfd0']} >
             <SafeAreaView>
@@ -325,7 +319,7 @@ const ReproductorScene = ({ route }) => {
                                     size={35}
                                     color="white"
                                     style={{ textAlign: 'center' }}
-                                    onPress={() => { findTrack() }}
+                                    onPress={() => { setShufflePressed(true) }}
                                 />
                             </TouchableOpacity>
                         </View>}
