@@ -302,6 +302,7 @@ const Music_Library = (props) => {
                   navigation.navigate('Reproductor', {
                     trackListParam: trackList,
                     idParam: currentItem.id,
+                    playReproductor: estadoPlay,
                   });
                 }}
               />
@@ -334,7 +335,7 @@ const Music_Library = (props) => {
           <IconFeather
             name="music"
             size={50}
-            color="red"
+            color="white"
             onPress={() => {
               console.log('Sub Meno');
             }}
@@ -434,7 +435,7 @@ const Music_Library = (props) => {
           renderItem={renderItem}
         />
       </View>
-      {currentItem !== null ? MiniReproductor() : null}
+      {MiniReproductor()}
     </LinearGradient>
   );
 };
