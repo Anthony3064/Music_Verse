@@ -1,7 +1,7 @@
 # Music_Verse
 
 Es necesario tener instalado el npx:
-   -npm install -g npx
+  - npm install -g npx
 
 Para correr este proyecto se debe instalar las siguintes bibliotecas.
  
